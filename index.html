@@ -63,19 +63,19 @@
                     <h2>请选择您的房屋类型</h2>
                     <div class="options">
                         <!-- 自有住房 -->
-                        <div class="option" onclick="selectOption('owned')">
+                        <div class="option" onclick="selectOption(this, 'owned')">
                             🏡 自有住房
                             <div class="sub-option">（商品房 / 按揭房 / 经济适用房）</div>
                         </div>
                         
                         <!-- 租赁租房 -->
-                        <div class="option" onclick="selectOption('rented')">
+                        <div class="option" onclick="selectOption(this, 'rented')">
                             🏢 租赁租房
                             <div class="sub-option">（公租房 / 廉租房 / 经济保障房）</div>
                         </div>
                         
                         <!-- 自建房 -->
-                        <div class="option" onclick="selectOption('selfBuilt')">
+                        <div class="option" onclick="selectOption(this, 'selfBuilt')">
                             🏠 自建房
                             <div class="sub-option">（自家建造的房屋）</div>
                         </div>
@@ -89,11 +89,11 @@
                 <div class="question">
                     <h2>请选择增值服务方案</h2>
                     <div class="options">
-                        <div class="service-option" onclick="selectService('threeChooseOne')">
+                        <div class="service-option" onclick="selectService(this, 'threeChooseOne')">
                             <div class="service-title">三选一方案</div>
                             <div class="service-desc">管道疏通、上门开锁、家电清洗 三选一</div>
                         </div>
-                        <div class="service-option" onclick="selectService('allServices')">
+                        <div class="service-option" onclick="selectService(this, 'allServices')">
                             <div class="service-title">各一次方案</div>
                             <div class="service-desc">管道疏通、上门开锁、家电清洗 各一次</div>
                         </div>
@@ -133,3 +133,232 @@
                     { name: "室内财产", amount: "1万" },
                     { name: "火灾爆炸三者责任", amount: "5000元" }
                 ],
+                description: "专为自建房设计的保障方案，基础保障全面",
+                range: "全国各地区"
+            },
+            ownedThreeChooseOne: {
+                name: "自有住房保障方案 - 三选一增值服务",
+                basePrice: 292,
+                coverages: [
+                    { name: "房屋主体", amount: "100万" },
+                    { name: "室内装潢", amount: "10万" },
+                    { name: "室内财产", amount: "5万" },
+                    { name: "室内盗抢", amount: "1万" },
+                    { name: "管道破裂", amount: "5000元" },
+                    { name: "火灾爆炸三者责任", amount: "5000元" },
+                    { name: "增值服务", amount: "管道疏通、上门开锁、家电清洗 三选一" }
+                ],
+                description: "适合商品房、按揭房、经济适用房，提供三选一增值服务",
+                range: "全国通用"
+            },
+            ownedAllServices: {
+                name: "全国版方案二",
+                basePrice: 609,
+                coverages: [
+                    { name: "房屋主体", amount: "550万" },
+                    { name: "室内装潢", amount: "32万" },
+                    { name: "室内财产", amount: "18万" },
+                    { name: "室内盗抢", amount: "5万" },
+                    { name: "管道破裂", amount: "5万" },
+                    { name: "火灾爆炸三者责任", amount: "1.2万" },
+                    { name: "增值服务", amount: "管道疏通、上门开锁、家电清洗 各一次" }
+                ],
+                description: "适合商品房、按揭房、经济适用房，提供全项增值服务",
+                range: "全国通用"
+            },
+            rentedThreeChooseOne: {
+                name: "租赁住房保障方案 - 三选一增值服务",
+                basePrice: 292,
+                coverages: [
+                    { name: "房屋主体", amount: "100万" },
+                    { name: "室内装潢", amount: "10万" },
+                    { name: "室内财产", amount: "5万" },
+                    { name: "室内盗抢", amount: "1万" },
+                    { name: "管道破裂", amount: "5000元" },
+                    { name: "火灾爆炸三者责任", amount: "5000元" },
+                    { name: "增值服务", amount: "管道疏通、上门开锁、家电清洗 三选一" }
+                ],
+                description: "适合公租房、廉租房、经济保障房，提供三选一增值服务",
+                range: "全国通用"
+            },
+            rentedAllServices: {
+                name: "全国版方案二",
+                basePrice: 609,
+                coverages: [
+                    { name: "房屋主体", amount: "550万" },
+                    { name: "室内装潢", amount: "32万" },
+                    { name: "室内财产", amount: "18万" },
+                    { name: "室内盗抢", amount: "5万" },
+                    { name: "管道破裂", amount: "5万" },
+                    { name: "火灾爆炸三者责任", amount: "1.2万" },
+                    { name: "增值服务", amount: "管道疏通、上门开锁、家电清洗 各一次" }
+                ],
+                description: "适合公租房、廉租房、经济保障房，提供全项增值服务",
+                range: "全国通用"
+            }
+        };
+
+        let selectedOption = null;
+        let selectedService = null;
+
+        function showStep(stepId) {
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.getElementById(stepId).classList.add('active');
+        }
+
+        function selectOption(element, option) {
+            selectedOption = option;
+            
+            // 移除所有选项的选中状态
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // 为当前点击的选项添加选中状态
+            element.classList.add('selected');
+            
+            // 启用下一步按钮
+            document.getElementById('next1').disabled = false;
+        }
+
+        function selectService(element, service) {
+            selectedService = service;
+            
+            // 移除所有服务选项的选中状态
+            document.querySelectorAll('.service-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // 为当前点击的服务选项添加选中状态
+            element.classList.add('selected');
+            
+            // 启用查看结果按钮
+            document.getElementById('nextService').disabled = false;
+        }
+
+        function showNextStep() {
+            if (selectedOption === 'selfBuilt') {
+                // 自建房直接计算结果显示
+                calculateResult();
+            } else {
+                // 自有住房和租赁租房进入增值服务选择步骤
+                showStep('stepService');
+            }
+        }
+
+        function calculateResult() {
+            let plan;
+            let finalPrice;
+            
+            // 根据选择的房屋类型和服务确定方案和价格
+            if (selectedOption === 'selfBuilt') {
+                // 自建房固定79元
+                plan = insurancePlans.selfBuilt;
+                finalPrice = plan.basePrice;
+            } else if (selectedOption === 'owned') {
+                // 自有住房根据服务选择确定价格
+                if (selectedService === 'threeChooseOne') {
+                    plan = insurancePlans.ownedThreeChooseOne;
+                    finalPrice = plan.basePrice;
+                } else {
+                    plan = insurancePlans.ownedAllServices;
+                    finalPrice = plan.basePrice;
+                }
+            } else if (selectedOption === 'rented') {
+                // 租赁租房根据服务选择确定价格
+                if (selectedService === 'threeChooseOne') {
+                    plan = insurancePlans.rentedThreeChooseOne;
+                    finalPrice = plan.basePrice;
+                } else {
+                    plan = insurancePlans.rentedAllServices;
+                    finalPrice = plan.basePrice;
+                }
+            }
+            
+            // 计算每日价格
+            const dailyPrice = (finalPrice / 365).toFixed(2);
+            
+            // 生成对比文案
+            let comparisonText = "";
+            if (dailyPrice < 1) {
+                comparisonText = "相当于一瓶矿泉水的钱！💧";
+            } else if (dailyPrice < 2) {
+                comparisonText = "相当于一杯奶茶的钱！🧋";
+            } else if (dailyPrice < 3) {
+                comparisonText = "相当于一顿早餐的钱！🍳";
+            } else {
+                comparisonText = "物超所值的家庭保障！🛡️";
+            }
+            
+            // 更新结果显示
+            document.getElementById('dailyPrice').textContent = dailyPrice + "元";
+            document.getElementById('comparison').textContent = comparisonText;
+            
+            // 生成方案详情
+            generatePlanDetails(plan, finalPrice);
+            
+            // 显示结果页
+            showStep('result');
+        }
+
+        function generatePlanDetails(plan, finalPrice) {
+            const planDetails = document.getElementById('planDetails');
+            
+            let html = `
+                <div class="plan-name">${plan.name}</div>
+                <table class="plan-table">
+                    <tr>
+                        <th>保障类型</th>
+                        <th>保障金额</th>
+                    </tr>
+            `;
+            
+            plan.coverages.forEach(coverage => {
+                html += `
+                    <tr>
+                        <td>${coverage.name}</td>
+                        <td><span class="coverage-badge">${coverage.amount}</span></td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    <tr style="background: #f0f8ff;">
+                        <td><strong>年保费</strong></td>
+                        <td><strong style="color: #ff6b6b; font-size: 18px;">${finalPrice}元/年</strong></td>
+                    </tr>
+                </table>
+                <div style="text-align: center; margin: 15px 0;">
+                    <span class="coverage-badge" style="background: #e7f7ef; color: #28a745;">${plan.range}</span>
+                    <p style="color: #666; margin-top: 10px; font-size: 14px;">${plan.description}</p>
+                </div>
+            `;
+            
+            planDetails.innerHTML = html;
+        }
+
+        function restartTest() {
+            selectedOption = null;
+            selectedService = null;
+            
+            // 重置所有选择
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            document.querySelectorAll('.service-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // 禁用下一步按钮
+            document.getElementById('next1').disabled = true;
+            document.getElementById('nextService').disabled = true;
+            
+            // 回到第一步
+            showStep('step1');
+        }
+    </script>
+</body>
+</html>
