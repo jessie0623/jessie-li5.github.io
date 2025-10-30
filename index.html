@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>家庭财产保险保障测算</title>
+    <title>家庭财产保险保费测算</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; }
         body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
         .container { background: white; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 600px; overflow: hidden; }
         .header { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 30px 20px; text-align: center; }
-        .content { padding: 30px; text-align: center; }
+        .qrcode-section, .content { padding: 30px; text-align: center; }
+        .qrcode-container { background: white; padding: 20px; border-radius: 15px; display: inline-block; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .question { margin-bottom: 30px; }
         .options { display: flex; flex-direction: column; gap: 12px; }
         .option { background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.3s ease; text-align: left; }
@@ -17,12 +19,15 @@
         .result { padding: 20px; text-align: left; }
         .price-display { background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); border-radius: 15px; padding: 25px; margin: 20px 0; color: white; text-align: center; }
         .price { font-size: 32px; font-weight: bold; margin: 10px 0; }
-        .btn { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; border-radius: 25px; padding: 12px 30px; margin: 8px; cursor: pointer; font-size: 16px; }
+        .btn { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; border-radius: 25px; padding: 12px 30px; margin: 8px; cursor: pointer; font-size: 16px; transition: all 0.3s ease; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         .next-btn { background: #28a745; width: 100%; margin-top: 20px; }
         
+        /* 方案表格样式 */
         .plan-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
         .plan-table th, .plan-table td { padding: 12px 8px; text-align: left; border-bottom: 1px solid #eee; }
         .plan-table th { background: #f8f9fa; font-weight: 600; color: #333; }
+        .plan-table tr:hover { background: #f8f9fa; }
         .plan-name { font-size: 18px; font-weight: bold; color: #4facfe; margin: 20px 0 10px 0; text-align: center; }
         .coverage-badge { background: #e7f3ff; color: #4facfe; padding: 4px 8px; border-radius: 12px; font-size: 12px; margin: 2px; display: inline-block; }
         
@@ -37,45 +42,47 @@
         .service-title { font-weight: bold; margin-bottom: 5px; }
         .service-desc { font-size: 14px; color: #666; }
         
-        .safe-tip { 
-            background: #fff3cd; 
-            border: 1px solid #ffeaa7; 
-            border-radius: 10px; 
-            padding: 15px; 
-            margin: 15px 0; 
-            font-size: 14px; 
-            color: #856404;
-            text-align: center;
-        }
+        h1 { font-size: 24px; margin-bottom: 10px; }
+        h2 { font-size: 20px; margin-bottom: 15px; color: #333; }
+        h3 { font-size: 18px; margin-bottom: 10px; color: #333; }
+        p { color: #666; line-height: 1.5; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>家庭财产保障测算</h1>
-            <p>了解您的专属保障方案</p>
+            <h1>家庭财产保险保费测算</h1>
+            <p>扫描二维码，立即测算专属保费</p>
         </div>
         
-        <div class="content">
-            <div class="safe-tip">
-                💡 安全提示：本页面为静态测算工具，不收集任何个人信息
+        <div id="qrcodeSection" class="qrcode-section">
+            <h3>📱 手机扫描体验</h3>
+            <p>使用微信扫描二维码开始测算</p>
+            <div class="qrcode-container">
+                <canvas id="qrcode"></canvas>
             </div>
-            
+            <button class="btn" onclick="startTest()">电脑端直接开始</button>
+        </div>
+        
+        <div id="content" class="content" style="display:none;">
             <!-- 步骤1：房屋类型 -->
             <div id="step1" class="step active">
                 <div class="question">
                     <h2>请选择您的房屋类型</h2>
                     <div class="options">
+                        <!-- 自有住房 -->
                         <div class="option" onclick="selectOption(this, 'owned')">
                             🏡 自有住房
                             <div class="sub-option">（商品房 / 按揭房 / 经济适用房）</div>
                         </div>
                         
+                        <!-- 租赁租房 -->
                         <div class="option" onclick="selectOption(this, 'rented')">
                             🏢 租赁租房
                             <div class="sub-option">（公租房 / 廉租房 / 经济保障房）</div>
                         </div>
                         
+                        <!-- 自建房 -->
                         <div class="option" onclick="selectOption(this, 'selfBuilt')">
                             🏠 自建房
                             <div class="sub-option">（自家建造的房屋）</div>
@@ -85,7 +92,7 @@
                 <button class="btn next-btn" id="next1" onclick="showNextStep()" style="display:none;">下一步</button>
             </div>
             
-            <!-- 步骤2：增值服务选择 -->
+            <!-- 步骤2：增值服务选择（自有住房和租赁租房） -->
             <div id="stepService" class="step">
                 <div class="question">
                     <h2>请选择增值服务方案</h2>
@@ -111,17 +118,20 @@
                     <div id="comparison">相当于一杯奶茶的钱！</div>
                 </div>
                 
-                <div id="planDetails"></div>
+                <div id="planDetails">
+                    <!-- 方案详情将通过JavaScript动态生成 -->
+                </div>
                 
                 <div style="text-align: center; margin-top: 20px;">
                     <button class="btn" onclick="restartTest()">重新测算</button>
+                    <button class="btn" onclick="showQRCode()">分享给朋友</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // 保险方案数据
+        // 保险方案数据 - 所有价格固定
         const insurancePlans = {
             selfBuilt: {
                 name: "自建房专属保障方案",
@@ -151,15 +161,15 @@
                 range: "全国通用"
             },
             ownedAllServices: {
-                name: "自有住房保障方案 - 全项增值服务",
+                name: "全国版方案二",
                 basePrice: 609,
                 coverages: [
-                    { name: "房屋主体", amount: "100万" },
-                    { name: "室内装潢", amount: "10万" },
-                    { name: "室内财产", amount: "5万" },
-                    { name: "室内盗抢", amount: "1万" },
-                    { name: "管道破裂", amount: "5000元" },
-                    { name: "火灾爆炸三者责任", amount: "5000元" },
+                    { name: "房屋主体", amount: "550万" },
+                    { name: "室内装潢", amount: "32万" },
+                    { name: "室内财产", amount: "18万" },
+                    { name: "室内盗抢", amount: "5万" },
+                    { name: "管道破裂", amount: "5万" },
+                    { name: "火灾爆炸三者责任", amount: "1.2万" },
                     { name: "增值服务", amount: "管道疏通、上门开锁、家电清洗 各一次" }
                 ],
                 description: "适合商品房、按揭房、经济适用房，提供全项增值服务",
@@ -181,15 +191,15 @@
                 range: "全国通用"
             },
             rentedAllServices: {
-                name: "租赁住房保障方案 - 全项增值服务",
+                name: "全国版方案二",
                 basePrice: 609,
                 coverages: [
-                    { name: "房屋主体", amount: "100万" },
-                    { name: "室内装潢", amount: "10万" },
-                    { name: "室内财产", amount: "5万" },
-                    { name: "室内盗抢", amount: "1万" },
-                    { name: "管道破裂", amount: "5000元" },
-                    { name: "火灾爆炸三者责任", amount: "5000元" },
+                    { name: "房屋主体", amount: "550万" },
+                    { name: "室内装潢", amount: "32万" },
+                    { name: "室内财产", amount: "18万" },
+                    { name: "室内盗抢", amount: "5万" },
+                    { name: "管道破裂", amount: "5万" },
+                    { name: "火灾爆炸三者责任", amount: "1.2万" },
                     { name: "增值服务", amount: "管道疏通、上门开锁、家电清洗 各一次" }
                 ],
                 description: "适合公租房、廉租房、经济保障房，提供全项增值服务",
@@ -199,6 +209,38 @@
 
         let selectedOption = null;
         let selectedService = null;
+
+        // 页面加载
+        window.onload = function() {
+            generateQRCode();
+            // 移动设备自动跳转
+            if(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                startTest();
+            }
+        };
+
+        function generateQRCode() {
+            const url = window.location.href;
+            QRCode.toCanvas(document.getElementById('qrcode'), url, { 
+                width: 200, 
+                margin: 1,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            });
+        }
+
+        function startTest() {
+            document.getElementById('qrcodeSection').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+            showStep('step1');
+        }
+
+        function showQRCode() {
+            document.getElementById('content').style.display = 'none';
+            document.getElementById('qrcodeSection').style.display = 'block';
+        }
 
         function showStep(stepId) {
             document.querySelectorAll('.step').forEach(step => {
@@ -227,8 +269,10 @@
 
         function showNextStep() {
             if (selectedOption === 'selfBuilt') {
+                // 自建房直接计算结果显示
                 calculateResult();
             } else {
+                // 自有住房和租赁租房进入增值服务选择步骤
                 showStep('stepService');
             }
         }
@@ -237,10 +281,13 @@
             let plan;
             let finalPrice;
             
+            // 根据选择的房屋类型和服务确定方案和价格
             if (selectedOption === 'selfBuilt') {
+                // 自建房固定79元
                 plan = insurancePlans.selfBuilt;
                 finalPrice = plan.basePrice;
             } else if (selectedOption === 'owned') {
+                // 自有住房根据服务选择确定价格
                 if (selectedService === 'threeChooseOne') {
                     plan = insurancePlans.ownedThreeChooseOne;
                     finalPrice = plan.basePrice;
@@ -249,6 +296,7 @@
                     finalPrice = plan.basePrice;
                 }
             } else if (selectedOption === 'rented') {
+                // 租赁租房根据服务选择确定价格
                 if (selectedService === 'threeChooseOne') {
                     plan = insurancePlans.rentedThreeChooseOne;
                     finalPrice = plan.basePrice;
@@ -258,8 +306,10 @@
                 }
             }
             
+            // 计算每日价格
             const dailyPrice = (finalPrice / 365).toFixed(2);
             
+            // 生成对比文案
             let comparisonText = "";
             if (dailyPrice < 1) {
                 comparisonText = "相当于一瓶矿泉水的钱！💧";
@@ -271,10 +321,14 @@
                 comparisonText = "物超所值的家庭保障！🛡️";
             }
             
+            // 更新结果显示
             document.getElementById('dailyPrice').textContent = dailyPrice + "元";
             document.getElementById('comparison').textContent = comparisonText;
             
+            // 生成方案详情
             generatePlanDetails(plan, finalPrice);
+            
+            // 显示结果页
             showStep('result');
         }
 
@@ -318,6 +372,7 @@
             selectedOption = null;
             selectedService = null;
             
+            // 重置所有选择
             document.querySelectorAll('.option').forEach(opt => {
                 opt.classList.remove('selected');
             });
@@ -330,6 +385,7 @@
                 btn.style.display = 'none';
             });
             
+            // 回到第一步
             showStep('step1');
         }
     </script>
