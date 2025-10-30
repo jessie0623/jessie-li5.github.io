@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>家庭财产保险保费测算</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; }
         body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
         .container { background: white; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 600px; overflow: hidden; }
         .header { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 30px 20px; text-align: center; }
-        .qrcode-section, .content { padding: 30px; text-align: center; }
-        .qrcode-container { background: white; padding: 20px; border-radius: 15px; display: inline-block; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .content { padding: 30px; }
         .question { margin-bottom: 30px; }
         .options { display: flex; flex-direction: column; gap: 12px; }
         .option { background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.3s ease; text-align: left; }
@@ -52,19 +50,10 @@
     <div class="container">
         <div class="header">
             <h1>家庭财产保险保费测算</h1>
-            <p>扫描二维码，立即测算专属保费</p>
+            <p>立即测算专属保费</p>
         </div>
         
-        <div id="qrcodeSection" class="qrcode-section">
-            <h3>📱 手机扫描体验</h3>
-            <p>使用微信扫描二维码开始测算</p>
-            <div class="qrcode-container">
-                <canvas id="qrcode"></canvas>
-            </div>
-            <button class="btn" onclick="startTest()">电脑端直接开始</button>
-        </div>
-        
-        <div id="content" class="content" style="display:none;">
+        <div class="content">
             <!-- 步骤1：房屋类型 -->
             <div id="step1" class="step active">
                 <div class="question">
@@ -124,7 +113,6 @@
                 
                 <div style="text-align: center; margin-top: 20px;">
                     <button class="btn" onclick="restartTest()">重新测算</button>
-                    <button class="btn" onclick="showQRCode()">分享给朋友</button>
                 </div>
             </div>
         </div>
@@ -210,37 +198,10 @@
         let selectedOption = null;
         let selectedService = null;
 
-        // 页面加载
+        // 页面加载后直接开始测算流程
         window.onload = function() {
-            generateQRCode();
-            // 移动设备自动跳转
-            if(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                startTest();
-            }
+            // 已经直接显示测算页面，无需额外操作
         };
-
-        function generateQRCode() {
-            const url = window.location.href;
-            QRCode.toCanvas(document.getElementById('qrcode'), url, { 
-                width: 200, 
-                margin: 1,
-                color: {
-                    dark: '#000000',
-                    light: '#FFFFFF'
-                }
-            });
-        }
-
-        function startTest() {
-            document.getElementById('qrcodeSection').style.display = 'none';
-            document.getElementById('content').style.display = 'block';
-            showStep('step1');
-        }
-
-        function showQRCode() {
-            document.getElementById('content').style.display = 'none';
-            document.getElementById('qrcodeSection').style.display = 'block';
-        }
 
         function showStep(stepId) {
             document.querySelectorAll('.step').forEach(step => {
@@ -355,39 +316,4 @@
             
             html += `
                     <tr style="background: #f0f8ff;">
-                        <td><strong>年保费</strong></td>
-                        <td><strong style="color: #ff6b6b; font-size: 18px;">${finalPrice}元/年</strong></td>
-                    </tr>
-                </table>
-                <div style="text-align: center; margin: 15px 0;">
-                    <span class="coverage-badge" style="background: #e7f7ef; color: #28a745;">${plan.range}</span>
-                    <p style="color: #666; margin-top: 10px; font-size: 14px;">${plan.description}</p>
-                </div>
-            `;
-            
-            planDetails.innerHTML = html;
-        }
-
-        function restartTest() {
-            selectedOption = null;
-            selectedService = null;
-            
-            // 重置所有选择
-            document.querySelectorAll('.option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            
-            document.querySelectorAll('.service-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            
-            document.querySelectorAll('.next-btn').forEach(btn => {
-                btn.style.display = 'none';
-            });
-            
-            // 回到第一步
-            showStep('step1');
-        }
-    </script>
-</body>
-</html>
+                       
